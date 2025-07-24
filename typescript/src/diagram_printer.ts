@@ -9,6 +9,7 @@ import {
   PagesBuilder,
 } from "./reporting";
 import * as util from "util";
+import { PDFDiagramPrinter } from "./pdf_diagram_printer";
 
 class DiagramPrinter {
   static readonly SPREADSHEET = "Spreadsheet";
@@ -45,16 +46,9 @@ class DiagramPrinter {
     let targetFilename = this._getTargetFilename(folder, filename);
 
     if (info.fileType === DiagramPrinter.PDF) {
-      PDFDiagramPrinter();
+      PDFDiagramPrinter(diagram, targetFilename, info);
     } else if (info.fileType === DiagramPrinter.SPREADSHEET) {
       spreadSheetDiagramPrinter();
-    }
-
-    function PDFDiagramPrinter() {
-      console.info(`Printing PDF to file ${targetFilename}`);
-      return diagram!
-        .flowchartAsPdf()
-        .copyFile(info.fullFilename, targetFilename, true);
     }
 
     function spreadSheetDiagramPrinter() {
@@ -62,6 +56,10 @@ class DiagramPrinter {
         targetFilename += ".xls";
       }
       console.info(`Printing Excel to file ${targetFilename}`);
+      return copySpreadSheetFile(diagram as FlowchartDiagram);
+    }
+
+    function copySpreadSheetFile(diagram: FlowchartDiagram) {
       return diagram!
         .flowchartDataAsSpreadsheet()
         .copyFile(info.fullFilename, targetFilename, true);
