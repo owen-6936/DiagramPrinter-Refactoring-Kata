@@ -1,19 +1,25 @@
-import * as path from 'path';
-import * as os from 'os';
-import { DiagramSummary, FlowchartDiagram, DiagramMetadata } from './documents';
-import { DiagramPhysicalPrinter } from './physical_printer';
-import {DiagramPagesReport, DiagramReportPage, FlowchartReportItems, PagesBuilder} from "./reporting";
+import * as path from "path";
+import * as os from "os";
+import { DiagramSummary, FlowchartDiagram, DiagramMetadata } from "./documents";
+import { DiagramPhysicalPrinter } from "./physical_printer";
+import {
+  DiagramPagesReport,
+  DiagramReportPage,
+  FlowchartReportItems,
+  PagesBuilder,
+} from "./reporting";
 import * as util from "util";
-
 
 class DiagramPrinter {
   static readonly SPREADSHEET = "Spreadsheet";
   static readonly PDF = "PDF";
 
-  constructor() {
-  }
+  constructor() {}
 
-  printSummary(diagram: FlowchartDiagram | null, language: string): [boolean, string] {
+  printSummary(
+    diagram: FlowchartDiagram | null,
+    language: string
+  ): [boolean, string] {
     if (diagram === null) {
       return [false, ""];
     }
@@ -26,7 +32,11 @@ class DiagramPrinter {
     return [true, summaryText];
   }
 
-  async printDiagram(diagram: FlowchartDiagram | null, folder?: string, filename?: string): Promise<boolean> {
+  async printDiagram(
+    diagram: FlowchartDiagram | null,
+    folder?: string,
+    filename?: string
+  ): Promise<boolean> {
     if (diagram === null) {
       return false;
     }
@@ -35,23 +45,32 @@ class DiagramPrinter {
     let targetFilename = this._getTargetFilename(folder, filename);
 
     if (info.fileType === DiagramPrinter.PDF) {
-      console.info(`Printing PDF to file ${targetFilename}`);
-      return diagram.flowchartAsPdf().copyFile(info.fullFilename, targetFilename, true);
+      PDFDiagramPrinter();
+    } else if (info.fileType === DiagramPrinter.SPREADSHEET) {
+      spreadSheetDiagramPrinter();
     }
 
-    if (info.fileType === DiagramPrinter.SPREADSHEET) {
+    function PDFDiagramPrinter() {
+      console.info(`Printing PDF to file ${targetFilename}`);
+      return diagram!
+        .flowchartAsPdf()
+        .copyFile(info.fullFilename, targetFilename, true);
+    }
+
+    function spreadSheetDiagramPrinter() {
       if (!targetFilename.endsWith(".xls")) {
         targetFilename += ".xls";
       }
       console.info(`Printing Excel to file ${targetFilename}`);
-      return diagram.flowchartDataAsSpreadsheet().copyFile(info.fullFilename, targetFilename, true);
+      return diagram!
+        .flowchartDataAsSpreadsheet()
+        .copyFile(info.fullFilename, targetFilename, true);
     }
 
     // default case - print to a physical printer
     const diagramPhysicalPrinter = new DiagramPhysicalPrinter();
     return await diagramPhysicalPrinter.doPrint(diagram, info, targetFilename);
   }
-
 
   printReport(
     diagram: FlowchartDiagram | null,
@@ -66,7 +85,9 @@ class DiagramPrinter {
 
     let report = diagram.report();
     const targetFilename = this._getTargetFilename(folder, filename);
-    console.info(`Creating report for ${diagram.name()} to file ${targetFilename}`);
+    console.info(
+      `Creating report for ${diagram.name()} to file ${targetFilename}`
+    );
 
     if (summarize) {
       diagram = diagram.summary();
@@ -125,7 +146,10 @@ class DiagramPrinter {
     return path.join(targetFolder, targetFilename);
   }
 
-  validateReport(template: string, substitutions: FlowchartReportItems): boolean {
+  validateReport(
+    template: string,
+    substitutions: FlowchartReportItems
+  ): boolean {
     try {
       this.createReport(template, substitutions.toArray());
       return true;
