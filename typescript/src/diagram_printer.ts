@@ -10,6 +10,7 @@ import {
 } from "./reporting";
 import * as util from "util";
 import { PDFDiagramPrinter } from "./pdf_diagram_printer";
+import { spreadSheetDiagramPrinter } from "./spreadsheet_diagram_printer";
 
 class DiagramPrinter {
   static readonly SPREADSHEET = "Spreadsheet";
@@ -48,21 +49,7 @@ class DiagramPrinter {
     if (info.fileType === DiagramPrinter.PDF) {
       PDFDiagramPrinter(diagram, targetFilename, info);
     } else if (info.fileType === DiagramPrinter.SPREADSHEET) {
-      spreadSheetDiagramPrinter();
-    }
-
-    function spreadSheetDiagramPrinter() {
-      if (!targetFilename.endsWith(".xls")) {
-        targetFilename += ".xls";
-      }
-      console.info(`Printing Excel to file ${targetFilename}`);
-      return copySpreadSheetFile(diagram as FlowchartDiagram);
-    }
-
-    function copySpreadSheetFile(diagram: FlowchartDiagram) {
-      return diagram!
-        .flowchartDataAsSpreadsheet()
-        .copyFile(info.fullFilename, targetFilename, true);
+      spreadSheetDiagramPrinter(diagram, targetFilename, info);
     }
 
     // default case - print to a physical printer

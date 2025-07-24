@@ -1,12 +1,15 @@
 import { DiagramMetadata, FlowchartDiagram } from "./documents";
 
-export function PDFDiagramPrinter(
+export function spreadSheetDiagramPrinter(
   diagram: FlowchartDiagram,
   targetFilename: string,
   info: DiagramMetadata
 ) {
-  console.info(`Printing PDF to file ${targetFilename}`);
+  if (!targetFilename.endsWith(".xls")) {
+    targetFilename += ".xls";
+  }
+  console.info(`Printing Excel to file ${targetFilename}`);
   return diagram!
-    .flowchartAsPdf()
+    .flowchartDataAsSpreadsheet()
     .copyFile(info.fullFilename, targetFilename, true);
 }
